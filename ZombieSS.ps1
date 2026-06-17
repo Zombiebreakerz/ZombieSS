@@ -167,7 +167,7 @@ $ToolData = @(
 )
 
 # ==============================================================================
-# XAML UI – Minecraft Clean Theme
+# XAML UI – Minecraft Clean Theme (with centred sidebar text)
 # ==============================================================================
 [xml]$xaml = @"
 <Window
@@ -185,17 +185,17 @@ $ToolData = @(
 
     <Window.Resources>
         <!-- Minecraft colour palette -->
-        <SolidColorBrush x:Key="MainBg"     Color="#2D2A26"/>   <!-- Dark stone -->
-        <SolidColorBrush x:Key="SidebarBg"  Color="#3C3A36"/>   <!-- Slightly lighter stone -->
-        <SolidColorBrush x:Key="CardBg"     Color="#4C4A46"/>   <!-- Inventory slot -->
-        <SolidColorBrush x:Key="Accent"     Color="#5D9C3F"/>   <!-- Grass green -->
-        <SolidColorBrush x:Key="AccentDim"  Color="#3B8526"/>   <!-- Darker green -->
+        <SolidColorBrush x:Key="MainBg"     Color="#2D2A26"/>
+        <SolidColorBrush x:Key="SidebarBg"  Color="#3C3A36"/>
+        <SolidColorBrush x:Key="CardBg"     Color="#4C4A46"/>
+        <SolidColorBrush x:Key="Accent"     Color="#5D9C3F"/>
+        <SolidColorBrush x:Key="AccentDim"  Color="#3B8526"/>
         <SolidColorBrush x:Key="TextMain"   Color="#E0E0E0"/>
         <SolidColorBrush x:Key="TextMuted"  Color="#A0A0A0"/>
         <SolidColorBrush x:Key="ConsoleBg"  Color="#1E1E1E"/>
-        <SolidColorBrush x:Key="BorderCol"  Color="#5A5A5A"/>   <!-- Stone border -->
+        <SolidColorBrush x:Key="BorderCol"  Color="#5A5A5A"/>
 
-        <!-- Sidebar category button -->
+        <!-- Sidebar category button – fully centred -->
         <Style x:Key="SideBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
@@ -203,8 +203,9 @@ $ToolData = @(
             <Setter Property="Height" Value="40"/>
             <Setter Property="Margin" Value="0,0,0,2"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Padding" Value="24,8,0,8"/>   <!-- Extra right padding -->
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -271,7 +272,6 @@ $ToolData = @(
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <!-- Pickaxe icon that always renders -->
                         <TextBlock Text="⛏️" FontSize="16" Foreground="{StaticResource Accent}" FontFamily="Segoe UI Emoji"/>
                         <TextBlock Text=" ZombieSS" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextMain}"/>
                         <TextBlock Text="  ·  ready" FontSize="11" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
@@ -468,7 +468,6 @@ function New-ToolButton {
     $btn.Cursor = "Hand"
     $btn.Tag    = $Tool
 
-    # Build a visual tree (Grid) instead of a raw string
     $contentXaml = @"
 <Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Margin="6">
     <Grid.RowDefinitions>
@@ -484,7 +483,6 @@ function New-ToolButton {
     $content = [Windows.Markup.XamlReader]::Parse($contentXaml)
     $btn.Content = $content
 
-    # Button template – slot-like border
     $templateXaml = @"
 <ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" TargetType="Button">
     <Border Background="#3C3A36"
@@ -504,7 +502,7 @@ function New-ToolButton {
 "@
     $btn.Template = [Windows.Markup.XamlReader]::Parse($templateXaml)
 
-    # Click handler (kept identical)
+    # Click handler (unchanged)
     $btn.Add_Click({
         $clickedBtn = $_.Source
         $toolData = $clickedBtn.Tag
@@ -697,26 +695,30 @@ function Show-CategoryTools {
     param($cat)
     $global:ToolsWrap.Children.Clear()
     if ($cat -eq "Credits") {
+        # Build dynamic credits list – all tools grouped by category
+        $sb = New-Object System.Text.StringBuilder
+        [void]$sb.AppendLine("ZombieSS Tool Dashboard")
+        [void]$sb.AppendLine("Created by Zombiebreakerz")
+        [void]$sb.AppendLine("═══════════════════════════════════════")
+        [void]$sb.AppendLine("Tools & Credits")
+        [void]$sb.AppendLine("")
+
+        foreach ($c in $categories) {
+            $toolsInCat = $ToolData | Where-Object { $_.Category -eq $c }
+            $count = @($toolsInCat).Count
+            [void]$sb.AppendLine("» $c ($count tools)")
+            foreach ($t in $toolsInCat) {
+                [void]$sb.AppendLine("   • $($t.Name) ($($t.Type))")
+            }
+            [void]$sb.AppendLine("")
+        }
+
+        [void]$sb.AppendLine("═══════════════════════════════════════")
+        [void]$sb.AppendLine("All tools are property of their respective authors.")
+        [void]$sb.AppendLine("This dashboard merely provides quick access.")
+
         $tb = New-Object System.Windows.Controls.TextBlock
-        $tb.Text = @"
-ZombieSS Tool Dashboard
-Created by Zombiebreakerz
-═══════════════════════════════════════
-Tools & Credits
-» Orbdiff          – PrefetchView, BAMReveal, ...
-» Spokwn           – BAM-parser, PathsParser, ...
-» Tonynoh          – MeowDoomsdayFucker, ...
-» Praiselily       – PSHunter, AltDetector, ...
-» RedLotus         – RL ModAnalyzer, ...
-» Eric Zimmerman   – bstrings, MFTECmd, ...
-» NirSoft          – WinPrefetchView, ...
-» horsicq          – DIE-engine
-» cheesecatlol     – DQRKIS-FUCKER
-» Nickk196         – MacroDetector
-═══════════════════════════════════════
-All tools belong to their respective authors.
-This dashboard provides quick access.
-"@
+        $tb.Text = $sb.ToString()
         $tb.FontFamily = "Consolas"
         $tb.FontSize = 12
         $tb.Foreground = "#E0E0E0"

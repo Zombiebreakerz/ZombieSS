@@ -1,5 +1,5 @@
 # ==============================================================================
-# ZombieSS.ps1 – Professional Tool Dashboard for Quick Access
+# ZombieSS.ps1 – Professional Tool Dashboard (Modern Dark Theme)
 # ==============================================================================
 # This script creates a graphical dashboard that organizes forensic/analysis
 # tools by category. Clicking a CMD button runs the command instantly; other
@@ -34,7 +34,6 @@ $script:installDir = "$env:USERPROFILE\Downloads\ZombieSS"
 function Write-Log {
     param([string]$msg)
     $time = Get-Date -Format "HH:mm:ss"
-    # Always use the UI thread to update the log box
     if ($global:LogBox.Dispatcher.CheckAccess()) {
         $global:LogBox.AppendText("[$time] $msg`r`n")
         $global:LogBox.ScrollToEnd()
@@ -169,7 +168,7 @@ $ToolData = @(
 )
 
 # ==============================================================================
-# XAML UI Definition (zombie green / dark professional theme)
+# XAML UI Definition – Modern Dark Professional Theme
 # ==============================================================================
 [xml]$xaml = @"
 <Window
@@ -186,32 +185,40 @@ $ToolData = @(
     FontFamily="Segoe UI">
 
     <Window.Resources>
-        <SolidColorBrush x:Key="MainBg"     Color="#0A1A0A"/>
-        <SolidColorBrush x:Key="SidebarBg"  Color="#0C220C"/>
-        <SolidColorBrush x:Key="CardBg"     Color="#112A11"/>
-        <SolidColorBrush x:Key="Accent"     Color="#39FF14"/>
-        <SolidColorBrush x:Key="AccentDim"  Color="#1B7A1B"/>
-        <SolidColorBrush x:Key="TextMain"   Color="#E0FFE0"/>
-        <SolidColorBrush x:Key="TextMuted"  Color="#5A8A5A"/>
-        <SolidColorBrush x:Key="ConsoleBg"  Color="#020402"/>
-        <SolidColorBrush x:Key="BtnDefBg"   Color="#0C220C"/>
+        <!-- Colors -->
+        <SolidColorBrush x:Key="MainBg"     Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="SidebarBg"  Color="#252526"/>
+        <SolidColorBrush x:Key="CardBg"     Color="#2D2D2D"/>
+        <SolidColorBrush x:Key="Accent"     Color="#0078D4"/>    <!-- Professional blue -->
+        <SolidColorBrush x:Key="AccentDim"  Color="#104B7D"/>
+        <SolidColorBrush x:Key="TextMain"   Color="#CCCCCC"/>
+        <SolidColorBrush x:Key="TextMuted"  Color="#888888"/>
+        <SolidColorBrush x:Key="ConsoleBg"  Color="#1A1A1A"/>
+        <SolidColorBrush x:Key="BtnDefBg"   Color="#333333"/>
+        <SolidColorBrush x:Key="BorderCol"  Color="#3C3C3C"/>
 
+        <!-- Sidebar category button style -->
         <Style x:Key="SideBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="16,0,0,0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="14,0"/>
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Margin="4,0">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#1A3A1A"/>
+                                <Setter Property="Background" Value="#2A2A2A"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -219,6 +226,7 @@ $ToolData = @(
             </Setter>
         </Style>
 
+        <!-- Title bar button style -->
         <Style x:Key="TitleBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
@@ -234,8 +242,8 @@ $ToolData = @(
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#2239FF14"/>
-                                <Setter Property="Foreground" Value="#39FF14"/>
+                                <Setter Property="Background" Value="#3A3A3A"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -244,31 +252,34 @@ $ToolData = @(
         </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource MainBg}" BorderBrush="#1A3A1A" BorderThickness="1" CornerRadius="8">
+    <Border Background="{StaticResource MainBg}"
+            BorderBrush="{StaticResource BorderCol}"
+            BorderThickness="1"
+            CornerRadius="8">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="42"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Title Bar (includes action buttons on the right) -->
-            <Border Grid.Row="0" Background="{StaticResource SidebarBg}" CornerRadius="8,8,0,0">
+            <!-- Title Bar -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource SidebarBg}"
+                    CornerRadius="8,8,0,0">
                 <Grid Margin="16,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="🧟" FontSize="16" Foreground="{StaticResource Accent}" FontFamily="Consolas"/>
+                        <TextBlock Text="⚙" FontSize="16" Foreground="{StaticResource Accent}" FontFamily="Segoe MDL2 Assets"/>
                         <TextBlock Text=" ZombieSS" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextMain}"/>
                         <TextBlock Text="  ·  ready" FontSize="11" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <!-- Action buttons moved to top right -->
                         <Button x:Name="OpenFolderBtn" Content="📁" ToolTip="Open Install Folder" Style="{StaticResource TitleBtn}" Width="40"/>
                         <Button x:Name="ClearCacheBtn" Content="🗑️" ToolTip="Clear Downloaded Files" Style="{StaticResource TitleBtn}" Width="40"/>
                         <Button x:Name="OpenCmdBtn"    Content=">_" ToolTip="Open CMD" Style="{StaticResource TitleBtn}" Width="40"/>
-                        <!-- Standard window buttons -->
                         <Button x:Name="MinBtn"   Style="{StaticResource TitleBtn}" Content="_"/>
                         <Button x:Name="CloseBtn" Style="{StaticResource TitleBtn}" Content="X"/>
                     </StackPanel>
@@ -282,21 +293,46 @@ $ToolData = @(
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Sidebar (now shows categories instead of actions) -->
-                <Border Grid.Column="0" Background="{StaticResource SidebarBg}" BorderBrush="#1A3A1A" BorderThickness="0,0,1,0">
+                <!-- Sidebar -->
+                <Border Grid.Column="0"
+                        Background="{StaticResource SidebarBg}"
+                        BorderBrush="{StaticResource BorderCol}"
+                        BorderThickness="0,0,1,0">
                     <StackPanel Margin="12,16,12,16">
-                        <TextBlock Text="ZSS" FontFamily="Consolas" FontSize="24" FontWeight="Bold" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                        <TextBlock Text="by Zombiebreakerz" FontSize="10" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <TextBlock Text="TOOL HUB"
+                                   FontFamily="Segoe UI"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource Accent}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="by Zombiebreakerz"
+                                   FontSize="10"
+                                   Foreground="{StaticResource TextMuted}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,16"/>
 
-                        <TextBlock Text="CATEGORIES" FontSize="9" FontWeight="Bold" Foreground="{StaticResource TextMuted}" Margin="4,0,0,6"/>
+                        <TextBlock Text="CATEGORIES"
+                                   FontSize="9"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextMuted}"
+                                   Margin="8,0,0,6"/>
 
-                        <!-- Categories will be injected here dynamically -->
                         <StackPanel x:Name="CategoryPanel" />
 
-                        <Separator Background="#1A3A1A" Margin="0,10,0,10"/>
+                        <Separator Background="{StaticResource BorderCol}" Margin="0,10,0,10"/>
 
-                        <TextBlock Text="INSTALL PATH" FontSize="9" FontWeight="Bold" Foreground="{StaticResource TextMuted}" Margin="4,0,0,4"/>
-                        <TextBlock x:Name="InstPathBlock" Text="" FontSize="9" Foreground="#3A7A3A" TextWrapping="Wrap" Margin="4,0,0,12"/>
+                        <TextBlock Text="INSTALL PATH"
+                                   FontSize="9"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextMuted}"
+                                   Margin="8,0,0,4"/>
+                        <TextBlock x:Name="InstPathBlock"
+                                   Text=""
+                                   FontSize="9"
+                                   Foreground="#999999"
+                                   TextWrapping="Wrap"
+                                   Margin="8,0,0,12"/>
                     </StackPanel>
                 </Border>
 
@@ -311,48 +347,83 @@ $ToolData = @(
                     </Grid.RowDefinitions>
 
                     <!-- Status card -->
-                    <Border Grid.Row="0" Background="{StaticResource CardBg}" CornerRadius="6" Padding="16,10">
+                    <Border Grid.Row="0"
+                            Background="{StaticResource CardBg}"
+                            CornerRadius="6"
+                            Padding="16,10"
+                            BorderBrush="{StaticResource BorderCol}"
+                            BorderThickness="1">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock x:Name="StatusTitle" Text="Ready" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextMain}"/>
-                                <TextBlock x:Name="StatusSub"   Text="Select a tool to launch or download it." FontSize="11" Foreground="{StaticResource TextMuted}"/>
+                                <TextBlock x:Name="StatusTitle"
+                                           Text="Ready"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextMain}"/>
+                                <TextBlock x:Name="StatusSub"
+                                           Text="Select a tool to launch or download it."
+                                           FontSize="11"
+                                           Foreground="{StaticResource TextMuted}"/>
                             </StackPanel>
-                            <Border Grid.Column="1" Background="#002200" CornerRadius="4" Padding="10,4" VerticalAlignment="Center">
-                                <TextBlock x:Name="StatusBadge" Text="IDLE" FontSize="12" FontWeight="Bold" Foreground="{StaticResource Accent}"/>
+                            <Border Grid.Column="1"
+                                    Background="#104B7D"
+                                    CornerRadius="4"
+                                    Padding="10,4"
+                                    VerticalAlignment="Center">
+                                <TextBlock x:Name="StatusBadge"
+                                           Text="IDLE"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="#FFFFFF"/>
                             </Border>
                         </Grid>
                     </Border>
 
-                    <!-- Tool display area (replaces TabControl) -->
-                    <Border Grid.Row="2" Background="{StaticResource CardBg}" CornerRadius="6">
-                        <ScrollViewer x:Name="CenterScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                            <!-- Content will be set dynamically -->
+                    <!-- Tool display area -->
+                    <Border Grid.Row="2"
+                            Background="{StaticResource CardBg}"
+                            CornerRadius="6"
+                            BorderBrush="{StaticResource BorderCol}"
+                            BorderThickness="1">
+                        <ScrollViewer x:Name="CenterScroll"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
                             <WrapPanel x:Name="ToolsWrap" Margin="8" />
                         </ScrollViewer>
                     </Border>
 
                     <!-- Console log -->
-                    <Border Grid.Row="4" Background="{StaticResource ConsoleBg}" CornerRadius="6" Padding="12,8">
+                    <Border Grid.Row="4"
+                            Background="{StaticResource ConsoleBg}"
+                            CornerRadius="6"
+                            Padding="12,8"
+                            BorderBrush="{StaticResource BorderCol}"
+                            BorderThickness="1">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="ACTIVITY LOG" FontSize="9" FontWeight="Bold" Foreground="#3A7A3A" FontFamily="Consolas" Margin="0,0,0,4"/>
+                            <TextBlock Text="ACTIVITY LOG"
+                                       FontSize="9"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource AccentDim}"
+                                       FontFamily="Consolas"
+                                       Margin="0,0,0,4"/>
                             <TextBox x:Name="LogBox"
-                                Grid.Row="1"
-                                Background="Transparent"
-                                Foreground="{StaticResource Accent}"
-                                BorderThickness="0"
-                                FontFamily="Consolas"
-                                FontSize="11"
-                                IsReadOnly="True"
-                                VerticalScrollBarVisibility="Auto"
-                                TextWrapping="Wrap"/>
+                                     Grid.Row="1"
+                                     Background="Transparent"
+                                     Foreground="{StaticResource Accent}"
+                                     BorderThickness="0"
+                                     FontFamily="Consolas"
+                                     FontSize="11"
+                                     IsReadOnly="True"
+                                     VerticalScrollBarVisibility="Auto"
+                                     TextWrapping="Wrap"/>
                         </Grid>
                     </Border>
                 </Grid>
@@ -385,35 +456,52 @@ $global:InstPathBlock = $window.FindName("InstPathBlock")
 $global:InstPathBlock.Text = "Install path:`n$script:installDir"
 
 # ------------------------------------------------------------------------------
-# Dynamic tool button creation (reused from original logic)
+# Dynamic tool button creation – Modern card style with type badge
 # ------------------------------------------------------------------------------
 function New-ToolButton {
     param($Tool)
+
     $btn = New-Object System.Windows.Controls.Button
-    if ($Tool.Type -eq "Cmd") {
-        $btn.Content = "(cmd) $($Tool.Name)"
-    } else {
-        $btn.Content = $Tool.Name
-    }
-    $btn.Width     = 200
-    $btn.Height    = 60
+    $btn.Width     = 180
+    $btn.Height    = 80
     $btn.FontSize  = 12
     $btn.Margin    = "6"
     $btn.Cursor    = "Hand"
-    $btn.Foreground = "#E0FFE0"
-    $btn.Background = "#0C220C"
-    $btn.Tag       = $Tool  # store the tool data
+    $btn.Foreground = "#CCCCCC"
+    $btn.Background = "#333333"
+    $btn.Tag       = $Tool
 
-    # Button style (green accent on hover)
+    # Build a rich button content with name and type badge
+    $typeLabel = $Tool.Type.ToUpper()
+    $typeColor = "#0078D4"  # blue for all
+    $btn.Content = @"
+<Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Margin="6">
+    <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <TextBlock Text="$($Tool.Name)" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+    <Border Grid.Row="1" Background="#104B7D" CornerRadius="3" Padding="4,2" HorizontalAlignment="Right" Margin="0,4,0,0">
+        <TextBlock Text="$typeLabel" FontSize="9" FontWeight="Bold" Foreground="#FFFFFF"/>
+    </Border>
+</Grid>
+"@
+
+    # Button template – modern flat with accent hover
     $btn.Template = [Windows.Markup.XamlReader]::Parse(@"
-<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='Button'>
-    <Border Background='{TemplateBinding Background}' CornerRadius='6' BorderBrush='#2239FF14' BorderThickness='1'>
-        <ContentPresenter HorizontalAlignment='Center' VerticalAlignment='Center'/>
+<ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" TargetType="Button">
+    <Border Background="{TemplateBinding Background}"
+            CornerRadius="6"
+            BorderBrush="#3C3C3C"
+            BorderThickness="1"
+            Padding="8">
+        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Border>
     <ControlTemplate.Triggers>
-        <Trigger Property='IsMouseOver' Value='True'>
-            <Setter Property='Background' Value='#39FF14'/>
-            <Setter Property='Foreground' Value='#0A1A0A'/>
+        <Trigger Property="IsMouseOver" Value="True">
+            <Setter Property="Background" Value="#0078D4"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#0078D4"/>
         </Trigger>
     </ControlTemplate.Triggers>
 </ControlTemplate>
@@ -424,11 +512,10 @@ function New-ToolButton {
         $toolData = $clickedBtn.Tag
         if (-not $toolData) { return }
 
-        # Quick flash
         $origBg = $clickedBtn.Background
         $origFg = $clickedBtn.Foreground
-        $clickedBtn.Background = "#39FF14"
-        $clickedBtn.Foreground = "#0A1A0A"
+        $clickedBtn.Background = "#0078D4"
+        $clickedBtn.Foreground = "#FFFFFF"
         $clickedBtn.IsEnabled  = $false
         Start-Sleep -Milliseconds 80
 
@@ -604,26 +691,23 @@ function New-ToolButton {
 $categories = @("Orbdiff","Spokwn","Tonynoh","Praiselily","RedLotus","Zimmerman","Dependencies","Others")
 $selectedCategory = $null
 
-# Helper to highlight the active category button
 function Set-ActiveCategory {
     param($activeBtn)
     foreach ($child in $global:CategoryPanel.Children) {
         if ($child -is [System.Windows.Controls.Button]) {
             $child.Background = "Transparent"
-            $child.Foreground = "#E0FFE0"
+            $child.Foreground = "#CCCCCC"
         }
     }
-    $activeBtn.Background = "#39FF14"
-    $activeBtn.Foreground = "#0A1A0A"
+    $activeBtn.Background = "#0078D4"
+    $activeBtn.Foreground = "#FFFFFF"
     $global:selectedCategory = $activeBtn.Tag.ToString()
 }
 
-# Helper to clear and populate the center panel with tools
 function Show-CategoryTools {
     param($cat)
     $global:ToolsWrap.Children.Clear()
     if ($cat -eq "Credits") {
-        # Show credits text
         $creditsText = @"
 ZombieSS Tool Dashboard
 
@@ -652,8 +736,8 @@ This dashboard merely provides quick access.
         $tb = New-Object System.Windows.Controls.TextBlock
         $tb.Text = $creditsText
         $tb.FontFamily = "Consolas"
-        $tb.FontSize = 11
-        $tb.Foreground = "#E0FFE0"
+        $tb.FontSize = 12
+        $tb.Foreground = "#CCCCCC"
         $tb.Margin = "12"
         $tb.TextWrapping = "Wrap"
         $global:ToolsWrap.Children.Add($tb) | Out-Null
@@ -668,7 +752,7 @@ This dashboard merely provides quick access.
             $tb = New-Object System.Windows.Controls.TextBlock
             $tb.Text = "No tools available for this category."
             $tb.FontSize = 12
-            $tb.Foreground = "#5A8A5A"
+            $tb.Foreground = "#888888"
             $tb.Margin = "12"
             $global:ToolsWrap.Children.Add($tb) | Out-Null
         }
@@ -688,7 +772,7 @@ foreach ($cat in $categories) {
     $global:CategoryPanel.Children.Add($catBtn) | Out-Null
 }
 
-# Add a Credits button at the end
+# Add a Credits button
 $creditsBtn = New-Object System.Windows.Controls.Button
 $creditsBtn.Content = "Credits"
 $creditsBtn.Style = $window.Resources["SideBtn"]
@@ -716,7 +800,6 @@ $window.Add_MouseLeftButtonDown({ try { $window.DragMove() } catch {} })
 $global:CloseBtn.Add_Click({ $window.Close() })
 $global:MinBtn.Add_Click({ $window.WindowState = "Minimized" })
 
-# Action buttons (now in title bar) – keep original functionality
 $global:OpenFolderBtn.Add_Click({
     if (-not (Test-Path $script:installDir)) { New-Item -ItemType Directory -Path $script:installDir -Force | Out-Null }
     Start-Process explorer.exe $script:installDir

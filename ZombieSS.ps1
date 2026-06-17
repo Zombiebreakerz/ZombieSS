@@ -195,8 +195,7 @@ $ToolData = @(
         <SolidColorBrush x:Key="ConsoleBg"  Color="#1E1E1E"/>
         <SolidColorBrush x:Key="BorderCol"  Color="#5A5A5A"/>
 
-        <!-- Sidebar category button – fully centred -->
-        <Style x:Key="SideBtn" TargetType="Button">
+              <Style x:Key="SideBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
             <Setter Property="FontSize" Value="13"/>
@@ -204,16 +203,16 @@ $ToolData = @(
             <Setter Property="Margin" Value="0,0,0,2"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
                                 CornerRadius="4"
                                 Margin="4,0">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              TextBlock.TextAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">

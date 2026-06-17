@@ -1,16 +1,15 @@
 # ==============================================================================
-# ZombieSS.ps1 – Professional Tool Dashboard (Modern Dark Theme)
+# ZombieSS.ps1 – Minecraft-Themed Professional Tool Dashboard
 # ==============================================================================
-# This script creates a graphical dashboard that organizes forensic/analysis
-# tools by category. Clicking a CMD button runs the command instantly; other
-# tools are downloaded into ~\Downloads\ZombieSS and the folder opens automatically.
+# GUI wrapper that organises forensic/analysis tools by category.
+# CMD tools launch instantly; others download into ~\Downloads\ZombieSS.
 #
 # REQUIREMENTS: PowerShell 5.1+, Windows 10/11 (WPF support)
-# USAGE: Just run the script in PowerShell (no admin required)
+# USAGE: Just run the script (no admin required)
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# Load required WPF assemblies
+# Load WPF assemblies
 # ------------------------------------------------------------------------------
 Add-Type -AssemblyName PresentationFramework
 Add-Type -AssemblyName PresentationCore
@@ -19,17 +18,17 @@ Add-Type -AssemblyName System.Xaml
 Add-Type -AssemblyName System.Windows.Forms
 
 # ------------------------------------------------------------------------------
-# Enforce TLS 1.2 for secure web requests
+# Enforce TLS 1.2
 # ------------------------------------------------------------------------------
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # ------------------------------------------------------------------------------
-# Configuration – easily change installation root
+# Configuration
 # ------------------------------------------------------------------------------
 $script:installDir = "$env:USERPROFILE\Downloads\ZombieSS"
 
 # ------------------------------------------------------------------------------
-# Helper: Write a timestamped message to the console log box
+# Helper: timestamped log
 # ------------------------------------------------------------------------------
 function Write-Log {
     param([string]$msg)
@@ -46,7 +45,7 @@ function Write-Log {
 }
 
 # ------------------------------------------------------------------------------
-# Helper: Update the status pane on the dashboard
+# Helper: update status pane
 # ------------------------------------------------------------------------------
 function Set-Status {
     param($title, $sub, $badge = "BUSY")
@@ -62,16 +61,16 @@ function Set-Status {
 }
 
 # ------------------------------------------------------------------------------
-# Helper: Run an arbitrary PowerShell command in a new CMD window (instant)
+# Helper: launch PowerShell command in new CMD window
 # ------------------------------------------------------------------------------
 function Start-CmdToolCommand {
-    param([Parameter(Mandatory)] [string]$Command)
+    param([Parameter(Mandatory)][string]$Command)
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($Command))
     Start-Process -FilePath "cmd.exe" -ArgumentList "/k", "powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -WindowStyle Normal
 }
 
 # ------------------------------------------------------------------------------
-# Helper: Download a file with progress and atomic write
+# Helper: atomic file download
 # ------------------------------------------------------------------------------
 function Save-UrlToFile {
     param([string]$Uri, [string]$OutFile)
@@ -90,7 +89,7 @@ function Save-UrlToFile {
 }
 
 # ==============================================================================
-# TOOL DATA – Add new tools here to have them appear automatically
+# TOOL DATA – Add / modify entries here
 # ==============================================================================
 $ToolData = @(
     # --- Orbdiff ---
@@ -168,7 +167,7 @@ $ToolData = @(
 )
 
 # ==============================================================================
-# XAML UI Definition – Modern Dark Professional Theme
+# XAML UI – Minecraft Clean Theme
 # ==============================================================================
 [xml]$xaml = @"
 <Window
@@ -182,22 +181,21 @@ $ToolData = @(
     WindowStyle="None"
     AllowsTransparency="True"
     Background="Transparent"
-    FontFamily="Segoe UI">
+    FontFamily="Consolas">
 
     <Window.Resources>
-        <!-- Colors -->
-        <SolidColorBrush x:Key="MainBg"     Color="#1E1E1E"/>
-        <SolidColorBrush x:Key="SidebarBg"  Color="#252526"/>
-        <SolidColorBrush x:Key="CardBg"     Color="#2D2D2D"/>
-        <SolidColorBrush x:Key="Accent"     Color="#0078D4"/>    <!-- Professional blue -->
-        <SolidColorBrush x:Key="AccentDim"  Color="#104B7D"/>
-        <SolidColorBrush x:Key="TextMain"   Color="#CCCCCC"/>
-        <SolidColorBrush x:Key="TextMuted"  Color="#888888"/>
-        <SolidColorBrush x:Key="ConsoleBg"  Color="#1A1A1A"/>
-        <SolidColorBrush x:Key="BtnDefBg"   Color="#333333"/>
-        <SolidColorBrush x:Key="BorderCol"  Color="#3C3C3C"/>
+        <!-- Minecraft colour palette -->
+        <SolidColorBrush x:Key="MainBg"     Color="#2D2A26"/>   <!-- Dark stone -->
+        <SolidColorBrush x:Key="SidebarBg"  Color="#3C3A36"/>   <!-- Slightly lighter stone -->
+        <SolidColorBrush x:Key="CardBg"     Color="#4C4A46"/>   <!-- Inventory slot -->
+        <SolidColorBrush x:Key="Accent"     Color="#5D9C3F"/>   <!-- Grass green -->
+        <SolidColorBrush x:Key="AccentDim"  Color="#3B8526"/>   <!-- Darker green -->
+        <SolidColorBrush x:Key="TextMain"   Color="#E0E0E0"/>
+        <SolidColorBrush x:Key="TextMuted"  Color="#A0A0A0"/>
+        <SolidColorBrush x:Key="ConsoleBg"  Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="BorderCol"  Color="#5A5A5A"/>   <!-- Stone border -->
 
-        <!-- Sidebar category button style -->
+        <!-- Sidebar category button -->
         <Style x:Key="SideBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
@@ -206,7 +204,7 @@ $ToolData = @(
             <Setter Property="Margin" Value="0,0,0,2"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Padding" Value="16,0,0,0"/>
+            <Setter Property="Padding" Value="24,8,0,8"/>   <!-- Extra right padding -->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -218,7 +216,8 @@ $ToolData = @(
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#2A2A2A"/>
+                                <Setter Property="Background" Value="#5D9C3F"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -226,7 +225,7 @@ $ToolData = @(
             </Setter>
         </Style>
 
-        <!-- Title bar button style -->
+        <!-- Title bar button -->
         <Style x:Key="TitleBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
@@ -242,7 +241,7 @@ $ToolData = @(
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#3A3A3A"/>
+                                <Setter Property="Background" Value="#5D9C3F"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -254,7 +253,7 @@ $ToolData = @(
 
     <Border Background="{StaticResource MainBg}"
             BorderBrush="{StaticResource BorderCol}"
-            BorderThickness="1"
+            BorderThickness="2"
             CornerRadius="8">
         <Grid>
             <Grid.RowDefinitions>
@@ -272,7 +271,8 @@ $ToolData = @(
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⚙" FontSize="16" Foreground="{StaticResource Accent}" FontFamily="Segoe MDL2 Assets"/>
+                        <!-- Pickaxe icon that always renders -->
+                        <TextBlock Text="⛏️" FontSize="16" Foreground="{StaticResource Accent}" FontFamily="Segoe UI Emoji"/>
                         <TextBlock Text=" ZombieSS" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextMain}"/>
                         <TextBlock Text="  ·  ready" FontSize="11" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </StackPanel>
@@ -297,10 +297,10 @@ $ToolData = @(
                 <Border Grid.Column="0"
                         Background="{StaticResource SidebarBg}"
                         BorderBrush="{StaticResource BorderCol}"
-                        BorderThickness="0,0,1,0">
+                        BorderThickness="0,0,2,0">
                     <StackPanel Margin="12,16,12,16">
                         <TextBlock Text="TOOL HUB"
-                                   FontFamily="Segoe UI"
+                                   FontFamily="Consolas"
                                    FontSize="22"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource Accent}"
@@ -352,7 +352,7 @@ $ToolData = @(
                             CornerRadius="6"
                             Padding="16,10"
                             BorderBrush="{StaticResource BorderCol}"
-                            BorderThickness="1">
+                            BorderThickness="2">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -370,7 +370,7 @@ $ToolData = @(
                                            Foreground="{StaticResource TextMuted}"/>
                             </StackPanel>
                             <Border Grid.Column="1"
-                                    Background="#104B7D"
+                                    Background="{StaticResource AccentDim}"
                                     CornerRadius="4"
                                     Padding="10,4"
                                     VerticalAlignment="Center">
@@ -388,7 +388,7 @@ $ToolData = @(
                             Background="{StaticResource CardBg}"
                             CornerRadius="6"
                             BorderBrush="{StaticResource BorderCol}"
-                            BorderThickness="1">
+                            BorderThickness="2">
                         <ScrollViewer x:Name="CenterScroll"
                                       VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled">
@@ -402,7 +402,7 @@ $ToolData = @(
                             CornerRadius="6"
                             Padding="12,8"
                             BorderBrush="{StaticResource BorderCol}"
-                            BorderThickness="1">
+                            BorderThickness="2">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -411,7 +411,7 @@ $ToolData = @(
                             <TextBlock Text="ACTIVITY LOG"
                                        FontSize="9"
                                        FontWeight="Bold"
-                                       Foreground="{StaticResource AccentDim}"
+                                       Foreground="{StaticResource Accent}"
                                        FontFamily="Consolas"
                                        Margin="0,0,0,4"/>
                             <TextBox x:Name="LogBox"
@@ -434,7 +434,7 @@ $ToolData = @(
 "@
 
 # ------------------------------------------------------------------------------
-# Load XAML and wire up controls
+# Load XAML and wire controls
 # ------------------------------------------------------------------------------
 $reader = New-Object System.Xml.XmlNodeReader $xaml
 $window = [Windows.Markup.XamlReader]::Load($reader)
@@ -456,67 +456,62 @@ $global:InstPathBlock = $window.FindName("InstPathBlock")
 $global:InstPathBlock.Text = "Install path:`n$script:installDir"
 
 # ------------------------------------------------------------------------------
-# Dynamic tool button creation – Modern card style with type badge
+# Dynamic tool button – proper visual content
 # ------------------------------------------------------------------------------
 function New-ToolButton {
     param($Tool)
 
     $btn = New-Object System.Windows.Controls.Button
-    $btn.Width     = 180
-    $btn.Height    = 80
-    $btn.FontSize  = 12
-    $btn.Margin    = "6"
-    $btn.Cursor    = "Hand"
-    $btn.Foreground = "#CCCCCC"
-    $btn.Background = "#333333"
-    $btn.Tag       = $Tool
+    $btn.Width  = 180
+    $btn.Height = 80
+    $btn.Margin = "6"
+    $btn.Cursor = "Hand"
+    $btn.Tag    = $Tool
 
-    # Build a rich button content with name and type badge
-    $typeLabel = $Tool.Type.ToUpper()
-    $typeColor = "#0078D4"  # blue for all
-    $btn.Content = @"
+    # Build a visual tree (Grid) instead of a raw string
+    $contentXaml = @"
 <Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Margin="6">
     <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
         <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-    <TextBlock Text="$($Tool.Name)" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
-    <Border Grid.Row="1" Background="#104B7D" CornerRadius="3" Padding="4,2" HorizontalAlignment="Right" Margin="0,4,0,0">
-        <TextBlock Text="$typeLabel" FontSize="9" FontWeight="Bold" Foreground="#FFFFFF"/>
+    <TextBlock Text="$($Tool.Name)" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#E0E0E0"/>
+    <Border Grid.Row="1" Background="#3B8526" CornerRadius="3" Padding="4,2" HorizontalAlignment="Right" Margin="0,4,0,0">
+        <TextBlock Text="$($Tool.Type.ToUpper())" FontSize="9" FontWeight="Bold" Foreground="#FFFFFF"/>
     </Border>
 </Grid>
 "@
+    $content = [Windows.Markup.XamlReader]::Parse($contentXaml)
+    $btn.Content = $content
 
-    # Button template – modern flat with accent hover
-    $btn.Template = [Windows.Markup.XamlReader]::Parse(@"
+    # Button template – slot-like border
+    $templateXaml = @"
 <ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" TargetType="Button">
-    <Border Background="{TemplateBinding Background}"
+    <Border Background="#3C3A36"
             CornerRadius="6"
-            BorderBrush="#3C3C3C"
-            BorderThickness="1"
-            Padding="8">
+            BorderBrush="#5A5A5A"
+            BorderThickness="2"
+            Padding="6">
         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Border>
     <ControlTemplate.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
-            <Setter Property="Background" Value="#0078D4"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="BorderBrush" Value="#0078D4"/>
+            <Setter Property="Background" Value="#5D9C3F"/>
+            <Setter Property="BorderBrush" Value="#3B8526"/>
         </Trigger>
     </ControlTemplate.Triggers>
 </ControlTemplate>
-"@)
+"@
+    $btn.Template = [Windows.Markup.XamlReader]::Parse($templateXaml)
 
+    # Click handler (kept identical)
     $btn.Add_Click({
         $clickedBtn = $_.Source
         $toolData = $clickedBtn.Tag
         if (-not $toolData) { return }
 
         $origBg = $clickedBtn.Background
-        $origFg = $clickedBtn.Foreground
-        $clickedBtn.Background = "#0078D4"
-        $clickedBtn.Foreground = "#FFFFFF"
-        $clickedBtn.IsEnabled  = $false
+        $clickedBtn.IsEnabled = $false
         Start-Sleep -Milliseconds 80
 
         $cleanName = $toolData.Name
@@ -533,7 +528,6 @@ function New-ToolButton {
                     Set-Status "Error" "Failed to launch $cleanName" "ERR"
                 }
                 $clickedBtn.Background = $origBg
-                $clickedBtn.Foreground = $origFg
                 $clickedBtn.IsEnabled  = $true
             }
             "Link" {
@@ -541,7 +535,6 @@ function New-ToolButton {
                 Write-Log "Opening browser: $cleanName"
                 Start-Process $toolData.URL
                 $clickedBtn.Background = $origBg
-                $clickedBtn.Foreground = $origFg
                 $clickedBtn.IsEnabled  = $true
             }
             "GitHub" {
@@ -560,7 +553,6 @@ function New-ToolButton {
                 $null = $rs.SessionStateProxy.SetVariable("dispatcher", $clickedBtn.Dispatcher)
                 $null = $rs.SessionStateProxy.SetVariable("btn", $clickedBtn)
                 $null = $rs.SessionStateProxy.SetVariable("origBg", $origBg)
-                $null = $rs.SessionStateProxy.SetVariable("origFg", $origFg)
                 $null = $rs.SessionStateProxy.SetVariable("StatusTitle", $global:StatusTitle)
                 $null = $rs.SessionStateProxy.SetVariable("StatusSub",   $global:StatusSub)
                 $null = $rs.SessionStateProxy.SetVariable("StatusBadge", $global:StatusBadge)
@@ -569,7 +561,7 @@ function New-ToolButton {
                 $null = $ps.AddScript({
                     function Write-LogBg { param($m) $dispatcher.Invoke([Action]{ $LogBox.AppendText("[$(Get-Date -f HH:mm:ss)] $m`n"); $LogBox.ScrollToEnd() }) }
                     function Set-StatusBg { param($t,$s,$b) $dispatcher.Invoke([Action]{ $StatusTitle.Text=$t; $StatusSub.Text=$s; $StatusBadge.Text=$b }) }
-                    function Restore-Button { $dispatcher.Invoke([Action]{ $btn.Background=$origBg; $btn.Foreground=$origFg; $btn.IsEnabled=$true }) }
+                    function Restore-Button { $dispatcher.Invoke([Action]{ $btn.Background=$origBg; $btn.IsEnabled=$true }) }
 
                     try {
                         $name = $toolData.Name; $cat = $toolData.Category
@@ -631,7 +623,6 @@ function New-ToolButton {
                 $null = $rs.SessionStateProxy.SetVariable("dispatcher", $clickedBtn.Dispatcher)
                 $null = $rs.SessionStateProxy.SetVariable("btn", $clickedBtn)
                 $null = $rs.SessionStateProxy.SetVariable("origBg", $origBg)
-                $null = $rs.SessionStateProxy.SetVariable("origFg", $origFg)
                 $null = $rs.SessionStateProxy.SetVariable("StatusTitle", $global:StatusTitle)
                 $null = $rs.SessionStateProxy.SetVariable("StatusSub",   $global:StatusSub)
                 $null = $rs.SessionStateProxy.SetVariable("StatusBadge", $global:StatusBadge)
@@ -640,7 +631,7 @@ function New-ToolButton {
                 $null = $ps.AddScript({
                     function Write-LogBg { param($m) $dispatcher.Invoke([Action]{ $LogBox.AppendText("[$(Get-Date -f HH:mm:ss)] $m`n"); $LogBox.ScrollToEnd() }) }
                     function Set-StatusBg { param($t,$s,$b) $dispatcher.Invoke([Action]{ $StatusTitle.Text=$t; $StatusSub.Text=$s; $StatusBadge.Text=$b }) }
-                    function Restore-Button { $dispatcher.Invoke([Action]{ $btn.Background=$origBg; $btn.Foreground=$origFg; $btn.IsEnabled=$true }) }
+                    function Restore-Button { $dispatcher.Invoke([Action]{ $btn.Background=$origBg; $btn.IsEnabled=$true }) }
 
                     try {
                         $name = $toolData.Name; $url = $toolData.URL; $cat = $toolData.Category
@@ -686,58 +677,49 @@ function New-ToolButton {
 }
 
 # ------------------------------------------------------------------------------
-# Populate sidebar with category buttons and handle category switching
+# Sidebar categories & switching
 # ------------------------------------------------------------------------------
 $categories = @("Orbdiff","Spokwn","Tonynoh","Praiselily","RedLotus","Zimmerman","Dependencies","Others")
-$selectedCategory = $null
 
 function Set-ActiveCategory {
     param($activeBtn)
     foreach ($child in $global:CategoryPanel.Children) {
         if ($child -is [System.Windows.Controls.Button]) {
             $child.Background = "Transparent"
-            $child.Foreground = "#CCCCCC"
+            $child.Foreground = "#E0E0E0"
         }
     }
-    $activeBtn.Background = "#0078D4"
+    $activeBtn.Background = "#5D9C3F"
     $activeBtn.Foreground = "#FFFFFF"
-    $global:selectedCategory = $activeBtn.Tag.ToString()
 }
 
 function Show-CategoryTools {
     param($cat)
     $global:ToolsWrap.Children.Clear()
     if ($cat -eq "Credits") {
-        $creditsText = @"
+        $tb = New-Object System.Windows.Controls.TextBlock
+        $tb.Text = @"
 ZombieSS Tool Dashboard
-
 Created by Zombiebreakerz
-
 ═══════════════════════════════════════
-
 Tools & Credits
-
-» Orbdiff          – PrefetchView, BAMReveal, StringsParser, Fileless, DPS-Analyzer, etc.
-» Spokwn           – BAM-parser, PathsParser, JournalTrace, KernelLiveDumpTool, etc.
-» Tonynoh          – MeowDoomsdayFucker, MeowModAnalyzer, MeowResolver, etc.
-» Praiselily       – PSHunter, AltDetector, WeHateFakers, CommonDirectories, etc.
-» RedLotus         – RL ModAnalyzer, RL TaskSentinel, RL AltChecker
-» Eric Zimmerman   – bstrings, JLECmd, MFTECmd, PECmd, TimelineExplorer, etc.
-» NirSoft          – WinPrefetchView, ComputerActivityView
+» Orbdiff          – PrefetchView, BAMReveal, ...
+» Spokwn           – BAM-parser, PathsParser, ...
+» Tonynoh          – MeowDoomsdayFucker, ...
+» Praiselily       – PSHunter, AltDetector, ...
+» RedLotus         – RL ModAnalyzer, ...
+» Eric Zimmerman   – bstrings, MFTECmd, ...
+» NirSoft          – WinPrefetchView, ...
 » horsicq          – DIE-engine
 » cheesecatlol     – DQRKIS-FUCKER
 » Nickk196         – MacroDetector
-
 ═══════════════════════════════════════
-
-All tools are property of their respective authors.
-This dashboard merely provides quick access.
+All tools belong to their respective authors.
+This dashboard provides quick access.
 "@
-        $tb = New-Object System.Windows.Controls.TextBlock
-        $tb.Text = $creditsText
         $tb.FontFamily = "Consolas"
         $tb.FontSize = 12
-        $tb.Foreground = "#CCCCCC"
+        $tb.Foreground = "#E0E0E0"
         $tb.Margin = "12"
         $tb.TextWrapping = "Wrap"
         $global:ToolsWrap.Children.Add($tb) | Out-Null
@@ -752,14 +734,14 @@ This dashboard merely provides quick access.
             $tb = New-Object System.Windows.Controls.TextBlock
             $tb.Text = "No tools available for this category."
             $tb.FontSize = 12
-            $tb.Foreground = "#888888"
+            $tb.Foreground = "#A0A0A0"
             $tb.Margin = "12"
             $global:ToolsWrap.Children.Add($tb) | Out-Null
         }
     }
 }
 
-# Create sidebar category buttons
+# Build sidebar buttons
 foreach ($cat in $categories) {
     $catBtn = New-Object System.Windows.Controls.Button
     $catBtn.Content = $cat
@@ -772,7 +754,7 @@ foreach ($cat in $categories) {
     $global:CategoryPanel.Children.Add($catBtn) | Out-Null
 }
 
-# Add a Credits button
+# Credits button
 $creditsBtn = New-Object System.Windows.Controls.Button
 $creditsBtn.Content = "Credits"
 $creditsBtn.Style = $window.Resources["SideBtn"]
@@ -783,13 +765,12 @@ $creditsBtn.Add_Click({
 })
 $global:CategoryPanel.Children.Add($creditsBtn) | Out-Null
 
-# Select first category by default
+# Select first category
 if ($categories.Count -gt 0) {
-    $firstCat = $categories[0]
-    $firstBtn = $global:CategoryPanel.Children | Where-Object { $_.Tag -eq $firstCat } | Select-Object -First 1
+    $firstBtn = $global:CategoryPanel.Children | Where-Object { $_.Tag -eq $categories[0] } | Select-Object -First 1
     if ($firstBtn) {
         Set-ActiveCategory -activeBtn $firstBtn
-        Show-CategoryTools -cat $firstCat
+        Show-CategoryTools -cat $categories[0]
     }
 }
 
@@ -811,10 +792,10 @@ $global:ClearCacheBtn.Add_Click({
         $items = Get-ChildItem -Path $script:installDir -Force -ErrorAction SilentlyContinue
         $count = @($items).Count
         $items | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-        Write-Log "Cleared $count item(s) from install folder"
+        Write-Log "Cleared $count item(s)"
         Set-Status "Clean" "Removed downloaded files" "IDLE"
     } else {
-        Write-Log "Nothing to clear – folder does not exist yet"
+        Write-Log "Nothing to clear"
     }
 })
 
@@ -824,7 +805,7 @@ $global:OpenCmdBtn.Add_Click({
 })
 
 # ------------------------------------------------------------------------------
-# Initial log message and launch
+# Launch
 # ------------------------------------------------------------------------------
 Write-Log "ZombieSS ready – files saved to $script:installDir"
 Set-Status "Ready" "Select a tool – CMDs run instantly, others download." "IDLE"

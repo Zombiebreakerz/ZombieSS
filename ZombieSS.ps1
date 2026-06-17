@@ -264,10 +264,10 @@ $ToolData = @(
                         <TextBlock Text="  ·  ready" FontSize="11" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <!-- Action buttons with text labels for visibility -->
-                        <Button x:Name="OpenFolderBtn" Content="Open"   ToolTip="Open Install Folder"    Style="{StaticResource TitleBtn}" Width="50"/>
-                        <Button x:Name="ClearCacheBtn" Content="Clear"  ToolTip="Clear Downloaded Files" Style="{StaticResource TitleBtn}" Width="50"/>
-                        <Button x:Name="OpenCmdBtn"    Content="CMD"    ToolTip="Open CMD"               Style="{StaticResource TitleBtn}" Width="50"/>
+                        <!-- Action buttons moved to top right -->
+                        <Button x:Name="OpenFolderBtn" Content="📁" ToolTip="Open Install Folder" Style="{StaticResource TitleBtn}" Width="40"/>
+                        <Button x:Name="ClearCacheBtn" Content="🗑️" ToolTip="Clear Downloaded Files" Style="{StaticResource TitleBtn}" Width="40"/>
+                        <Button x:Name="OpenCmdBtn"    Content=">_" ToolTip="Open CMD" Style="{StaticResource TitleBtn}" Width="40"/>
                         <!-- Standard window buttons -->
                         <Button x:Name="MinBtn"   Style="{StaticResource TitleBtn}" Content="_"/>
                         <Button x:Name="CloseBtn" Style="{StaticResource TitleBtn}" Content="X"/>
@@ -282,7 +282,7 @@ $ToolData = @(
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Sidebar (shows categories) -->
+                <!-- Sidebar (now shows categories instead of actions) -->
                 <Border Grid.Column="0" Background="{StaticResource SidebarBg}" BorderBrush="#1A3A1A" BorderThickness="0,0,1,0">
                     <StackPanel Margin="12,16,12,16">
                         <TextBlock Text="ZSS" FontFamily="Consolas" FontSize="24" FontWeight="Bold" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
@@ -327,9 +327,10 @@ $ToolData = @(
                         </Grid>
                     </Border>
 
-                    <!-- Tool display area -->
+                    <!-- Tool display area (replaces TabControl) -->
                     <Border Grid.Row="2" Background="{StaticResource CardBg}" CornerRadius="6">
                         <ScrollViewer x:Name="CenterScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <!-- Content will be set dynamically -->
                             <WrapPanel x:Name="ToolsWrap" Margin="8" />
                         </ScrollViewer>
                     </Border>
@@ -384,7 +385,7 @@ $global:InstPathBlock = $window.FindName("InstPathBlock")
 $global:InstPathBlock.Text = "Install path:`n$script:installDir"
 
 # ------------------------------------------------------------------------------
-# Dynamic tool button creation
+# Dynamic tool button creation (reused from original logic)
 # ------------------------------------------------------------------------------
 function New-ToolButton {
     param($Tool)
@@ -401,8 +402,9 @@ function New-ToolButton {
     $btn.Cursor    = "Hand"
     $btn.Foreground = "#E0FFE0"
     $btn.Background = "#0C220C"
-    $btn.Tag       = $Tool
+    $btn.Tag       = $Tool  # store the tool data
 
+    # Button style (green accent on hover)
     $btn.Template = [Windows.Markup.XamlReader]::Parse(@"
 <ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='Button'>
     <Border Background='{TemplateBinding Background}' CornerRadius='6' BorderBrush='#2239FF14' BorderThickness='1'>
@@ -422,6 +424,7 @@ function New-ToolButton {
         $toolData = $clickedBtn.Tag
         if (-not $toolData) { return }
 
+        # Quick flash
         $origBg = $clickedBtn.Background
         $origFg = $clickedBtn.Foreground
         $clickedBtn.Background = "#39FF14"
@@ -601,6 +604,7 @@ function New-ToolButton {
 $categories = @("Orbdiff","Spokwn","Tonynoh","Praiselily","RedLotus","Zimmerman","Dependencies","Others")
 $selectedCategory = $null
 
+# Helper to highlight the active category button
 function Set-ActiveCategory {
     param($activeBtn)
     foreach ($child in $global:CategoryPanel.Children) {
@@ -614,10 +618,12 @@ function Set-ActiveCategory {
     $global:selectedCategory = $activeBtn.Tag.ToString()
 }
 
+# Helper to clear and populate the center panel with tools
 function Show-CategoryTools {
     param($cat)
     $global:ToolsWrap.Children.Clear()
     if ($cat -eq "Credits") {
+        # Show credits text
         $creditsText = @"
 ZombieSS Tool Dashboard
 
@@ -710,6 +716,7 @@ $window.Add_MouseLeftButtonDown({ try { $window.DragMove() } catch {} })
 $global:CloseBtn.Add_Click({ $window.Close() })
 $global:MinBtn.Add_Click({ $window.WindowState = "Minimized" })
 
+# Action buttons (now in title bar) – keep original functionality
 $global:OpenFolderBtn.Add_Click({
     if (-not (Test-Path $script:installDir)) { New-Item -ItemType Directory -Path $script:installDir -Force | Out-Null }
     Start-Process explorer.exe $script:installDir

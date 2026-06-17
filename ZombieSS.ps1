@@ -152,16 +152,16 @@ $ToolData = @(
     @{ Name="TimelineExplorer";      Category="Zimmerman"; Type="Web"; URL="https://download.ericzimmermanstools.com/net9/TimelineExplorer.zip" },
 
     # --- Dependencies ---
-    @{ Name="NET 9.0 SDK";           Category="Dependencies"; Type="Web"; URL="https://download.visualstudio.microsoft.com/download/pr/92dba916-bc51-4e76-8b0e-d41d37ce5fa4/ab08f3e95bf7a3d3da336a7e8c8eca63/dotnet-sdk-9.0.203-win-x64.exe" },
-    @{ Name="NET 10.0 Runtime";      Category="Dependencies"; Type="Web"; URL="https://download.visualstudio.microsoft.com/download/pr/b3f93f0e-9e5e-4b4c-a4c4-36db0c4b0e3e/dotnet-runtime-10.0.0-win-x64.exe" },
-    @{ Name="VSRedist";              Category="Dependencies"; Type="Web"; URL="https://aka.ms/vs/17/release/vc_redist.x64.exe" },
+    @{ Name="NET 9.0 SDK";           Category="Dependencies"; Type="Link"; URL="https://dotnet.microsoft.com/en-us/download/dotnet/9.0" },
+    @{ Name="NET 10.0 Runtime";      Category="Dependencies"; Type="Link"; URL="https://dotnet.microsoft.com/en-us/download/dotnet/10.0" },
+    @{ Name="VSRedist";              Category="Dependencies"; Type="Link"; URL="https://aka.ms/vs/17/release/vc_redist.x64.exe" },
 
     # --- Others ---
-    @{ Name="WinPrefetchView";       Category="Others";     Type="Web";    URL="https://www.nirsoft.net/utils/win_prefetch_view.html" },
-    @{ Name="ComputerActivityView";  Category="Others";     Type="Web";    URL="https://www.nirsoft.net/utils/computer_activity_view.html" },
+    @{ Name="WinPrefetchView";       Category="Others";     Type="Link";   URL="https://www.nirsoft.net/utils/win_prefetch_view.html" },
+    @{ Name="ComputerActivityView";  Category="Others";     Type="Link";   URL="https://www.nirsoft.net/utils/computer_activity_view.html" },
     @{ Name="AmcacheParser";         Category="Others";     Type="Web";    URL="https://download.ericzimmermanstools.com/net9/AmcacheParser.zip" },
     @{ Name="SystemInformer";        Category="Others";     Type="Link";   URL="https://www.systeminformer.com/canary" },
-    @{ Name="DIE-engine";            Category="Others";     Type="Web";    URL="https://github.com/horsicq/DIE-engine/releases" },
+    @{ Name="DIE-engine";            Category="Others";     Type="Link";   URL="https://github.com/horsicq/DIE-engine/releases" },
     @{ Name="DQRKIS-FUCKER";         Category="Others";     Type="Cmd";    Command="Invoke-Expression (Invoke-RestMethod 'https://raw.githubusercontent.com/cheesecatlol/DQRKIS-FUCKER/refs/heads/main/DqrkisFucker.ps1')" },
     @{ Name="MacroDetector";         Category="Others";     Type="Cmd";    Command="Invoke-Expression (Invoke-RestMethod 'https://raw.githubusercontent.com/Nickk196/MacroDetector/refs/heads/main/MacroDetector.ps1')" }
 )

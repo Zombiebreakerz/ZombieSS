@@ -66,7 +66,10 @@ function Set-Status {
 function Start-CmdToolCommand {
     param([Parameter(Mandatory)][string]$Command)
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($Command))
-    Start-Process -FilePath "cmd.exe" -ArgumentList "/k", "powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -WindowStyle Normal
+    Start-Process -FilePath "cmd.exe" `
+        -ArgumentList "/k", "powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" `
+        -WindowStyle Normal `
+        -Verb RunAs
 }
 
 # ------------------------------------------------------------------------------
